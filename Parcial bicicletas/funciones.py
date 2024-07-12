@@ -18,7 +18,7 @@ def get_path_actual(nombre_archivo):
 
 def cargar_archivo_csv(archivo):
     """
-    carga un archivo CSV y lo convierte en una lista de diccionarios.
+    Carga un archivo CSV y lo convierte en una lista de diccionarios.
 
     Parameters:
     archivo (str): Nombre del archivo CSV a cargar.
@@ -33,15 +33,20 @@ def cargar_archivo_csv(archivo):
         return bicicletas
 
     with open(path, 'r', encoding='utf-8') as archivo_csv:
-        lector = csv.DictReader(archivo_csv)
-        for linea in lector:
-            linea['id_bike'] = int(linea['id_bike'])
-            linea['nombre'] = linea['nombre']
-            linea['tipo'] = linea['tipo']
-            linea['tiempo'] = int(linea['tiempo'])
-            bicicletas.append(linea)
+        lineas = archivo_csv.readline().strip().split(',')
+
+        for linea in archivo_csv:
+            valores = linea.strip().split(',')
+            bicicleta = {}
+            for i, linea in enumerate(lineas):
+                if linea in ['id_bike', 'tiempo']:
+                    bicicleta[linea] = int(valores[i])
+                else:
+                    bicicleta[linea] = valores[i]
+            bicicletas.append(bicicleta)
     
     return bicicletas
+
 
 def imprimir_lista(bicicletas):
     """
@@ -87,7 +92,7 @@ def informar_ganador(bicicletas):
 
 def filtrar_por_tipo(bicicletas, tipo_buscado):
     """
-    se asigna un tipo de bici para filtrar y guarda el archivo en csv
+    Filtra bicicletas por tipo y guarda los resultados en un archivo.
 
     Parameters:
     bicicletas (list): Lista de diccionarios con datos de bicicletas.
@@ -97,14 +102,14 @@ def filtrar_por_tipo(bicicletas, tipo_buscado):
     str: Nombre del archivo creado con el filtro aplicado.
     """
     bicicletas_filtradas = [bici for bici in bicicletas if bici['tipo'] == tipo_buscado]
-    nombre_archivo = f"{tipo_buscado}.csv"
+    nombre_archivo = f"{tipo_buscado}_bicicletas"
 
-    with open(nombre_archivo, 'w', encoding='utf-8', newline='') as archivo_csv:
-        campos = ['id_bike', 'nombre', 'tipo', 'tiempo']
-        escritor = csv.DictWriter(archivo_csv, fieldnames=campos)
-        escritor.writeheader()
-        escritor.writerows(bicicletas_filtradas)
-
+    with open(nombre_archivo, 'w', encoding='utf-8') as archivo:
+        archivo.write('id,nombre,tipo,tiempo\n')
+        for bici in bicicletas_filtradas:
+            linea = f"{bici['id_bike']},{bici['nombre']},{bici['tipo']},{bici['tiempo']}\n"
+            archivo.write(linea)
+    
     return nombre_archivo
 
 def informar_promedio_por_tipo(bicicletas):
